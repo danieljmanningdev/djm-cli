@@ -101,18 +101,24 @@ git diff --check
 
 ## Install locally
 
-Clone the repository and install the binary:
+Clone the repository and install the `djm` binary:
 
 ```bash
 git clone https://github.com/danieljmanningdev/djm-cli.git
 cd djm-cli
-go install .
+go install ./cmd/djm
 ```
 
 Ensure your Go binary directory is on `PATH`, then run:
 
 ```bash
 djm help
+```
+
+Once releases are available, the command can also be installed directly from the module path:
+
+```bash
+go install github.com/danieljmanningdev/djm-cli/cmd/djm@latest
 ```
 
 ## Philosophy
