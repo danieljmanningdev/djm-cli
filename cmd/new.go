@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 const (
 	starterRepository   = "https://github.com/danieljmanningdev/go-starter-auth-app"
+	starterModulePath   = "github.com/danieljmanningdev/go-starter-auth-app"
 	defaultModulePrefix = "github.com/danieljmanningdev"
 )
 
@@ -102,6 +104,10 @@ func createProject(options newOptions, commands runner) (err error) {
 		return fmt.Errorf("remove starter git history: %w", err)
 	}
 
+	if err := rewriteModuleImports(options.name, starterModulePath, options.modulePath); err != nil {
+		return fmt.Errorf("rewrite starter imports: %w", err)
+	}
+
 	if err := commands.run(
 		options.name,
 		"go",
@@ -116,11 +122,47 @@ func createProject(options newOptions, commands runner) (err error) {
 		return fmt.Errorf("tidy module: %w", err)
 	}
 
-	if err := commands.run(options.name, "git", "init"); err != nil {
+	if err := commands.run(options.name, "git", "init", "-b", "main"); err != nil {
 		return fmt.Errorf("initialise git repository: %w", err)
 	}
 
 	cleanup = false
 	fmt.Printf("Created %s\nModule: %s\n", options.name, options.modulePath)
 	return nil
+}
+
+func rewriteModuleImports(root, oldModule, newModule string) error {
+	oldValue := []byte(oldModule)
+	newValue := []byte(newModule)
+
+	return filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+
+		if entry.IsDir() || filepath.Ext(path) != ".go" {
+			return nil
+		}
+
+		contents, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		if !bytes.Contains(contents, oldValue) {
+			return nil
+		}
+
+		info, err := entry.Info()
+		if err != nil {
+			return err
+		}
+
+		updated := bytes.ReplaceAll(contents, oldValue, newValue)
+		if err := os.WriteFile(path, updated, info.Mode().Perm()); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
