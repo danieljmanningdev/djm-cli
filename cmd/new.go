@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	starterRepository  = "https://github.com/danieljmanningdev/go-starter-auth-app"
+	starterRepository   = "https://github.com/danieljmanningdev/go-starter-auth-app"
 	defaultModulePrefix = "github.com/danieljmanningdev"
 )
 
