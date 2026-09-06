@@ -1,10 +1,8 @@
-package djmcli
+package cmd
 
 import (
 	"errors"
 	"fmt"
-	"os"
-	"os/exec"
 )
 
 func Command(argv []string) error {
@@ -14,62 +12,38 @@ func Command(argv []string) error {
 
 	switch argv[1] {
 	case "new":
-		if len(argv) < 3 {
-			return errors.New("project name required")
-		}
-
-		projectName := argv[2]
-
-		clone := exec.Command(
-			"git",
-			"clone",
-			"https://github.com/danieljmanningdev/go-starter-auth-app",
-			projectName,
-		)
-
-		clone.Stdout = os.Stdout
-		clone.Stderr = os.Stderr
-
-		if err := clone.Run(); err != nil {
-			return fmt.Errorf("clone starter: %w", err)
-		}
-
-		if err := os.RemoveAll(projectName + "/.git"); err != nil {
-			return fmt.Errorf("remove starter git history: %w", err)
-		}
-
-		modEdit := exec.Command(
-			"go",
-			"mod",
-			"edit",
-			"-module=github.com/user/"+projectName,
-		)
-
-		modEdit.Dir = projectName
-
-		if err := modEdit.Run(); err != nil {
-			return fmt.Errorf("update module path: %w", err)
-		}
-
-		tidy := exec.Command("go", "mod", "tidy")
-		tidy.Dir = projectName
-
-		if err := tidy.Run(); err != nil {
-			return fmt.Errorf("go mod tidy: %w", err)
-		}
-
+		return New(argv[2:])
 	case "add":
-		// add feature
-
+		return Add(argv[2:])
 	case "dev":
-		// run dev environment
-
+		return Dev(argv[2:])
 	case "check":
-		// run checks
-
+		return Check(argv[2:])
+	case "help", "--help", "-h":
+		PrintHelp()
+		return nil
 	default:
 		return fmt.Errorf("unknown command: %s", argv[1])
 	}
+}
 
-	return nil
+func PrintHelp() {
+	fmt.Println(`djm - Go-first web project tooling
+
+Usage:
+  djm new <name> [--module <path>]
+  djm add <feature>
+  djm dev
+  djm check
+
+Features:
+  core
+  auth
+  security
+  jsonld
+  file-utils
+
+Environment:
+  DJM_MODULE_PREFIX   Default Go module prefix for new projects.
+                      Defaults to github.com/danieljmanningdev.`)
 }
