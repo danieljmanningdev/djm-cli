@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -29,10 +31,17 @@ func UXValidate(args []string) error {
 		switch {
 		case strings.HasSuffix(name, ".screen.json"):
 			screens++
+
+			if err := validateScreen(path); err != nil {
+				return err
+			}
+
 		case strings.HasSuffix(name, ".component.json"):
 			components++
+
 		case strings.HasSuffix(name, ".flow.json"):
 			flows++
+
 		case strings.HasSuffix(name, ".tokens.json"):
 			tokens++
 		}
@@ -50,6 +59,21 @@ func UXValidate(args []string) error {
 	fmt.Printf("%d components\n", components)
 	fmt.Printf("%d flows\n", flows)
 	fmt.Printf("%d token files\n", tokens)
+
+	return nil
+}
+
+func validateScreen(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+
+	if !json.Valid(data) {
+		return fmt.Errorf("%s contains invalid JSON", path)
+	}
+
+	fmt.Printf("✓ %s\n", path)
 
 	return nil
 }
