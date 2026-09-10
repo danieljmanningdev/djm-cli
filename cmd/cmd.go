@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"runtime/debug"
 )
 
 func Command(argv []string) error {
@@ -22,6 +23,9 @@ func Command(argv []string) error {
 	case "help", "--help", "-h":
 		PrintHelp()
 		return nil
+	case "version", "--version", "-v":
+		PrintVersion()
+		return nil
 	default:
 		return fmt.Errorf("unknown command: %s", argv[1])
 	}
@@ -35,6 +39,7 @@ Usage:
   djm add <feature>
   djm dev
   djm check
+  djm version
 
 Features:
   core
@@ -46,4 +51,14 @@ Features:
 Environment:
   DJM_MODULE_PREFIX   Default Go module prefix for new projects.
                       Defaults to github.com/danieljmanningdev.`)
+}
+
+func PrintVersion() {
+	info, ok := debug.ReadBuildInfo()
+	if !ok || info.Main.Version == "" || info.Main.Version == "(devel)" {
+		fmt.Println("djm dev")
+		return
+	}
+
+	fmt.Printf("djm %s\n", info.Main.Version)
 }
