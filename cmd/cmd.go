@@ -37,12 +37,12 @@ func PrintHelp() {
 	fmt.Println(`djm - Go-first web project tooling
 
 Usage:
-  djm new <name> [--module <path>]
-  djm add <feature>
-  djm dev
-  djm check
-  djm ux validate
-  djm version
+  	djm new <name> [--module <path>]
+	djm add <feature>
+	djm dev
+	djm check
+	djm ux validate
+	djm version
 
 Features:
   core
