@@ -129,6 +129,16 @@ The reusable implementation stays in focused Go modules such as `go-web-core`, `
 
 The wider stack remains server-rendered and Go-first, with HTML as the default, HTMX for progressive enhancement, and client-side JavaScript added only where browser-side behaviour genuinely requires it.
 
+## Validate UX documentation
+
+Projects using the DJM UX JSON documentation structure can validate
+screens, components, flows, and design tokens against the schemas
+embedded in the CLI.
+
+```bash
+djm ux validate
+```
+
 ## Development
 
 ```bash
