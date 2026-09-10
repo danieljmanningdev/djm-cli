@@ -26,6 +26,8 @@ func Command(argv []string) error {
 	case "version", "--version", "-v":
 		PrintVersion()
 		return nil
+	case "ux":
+		return UX(argv[2:])
 	default:
 		return fmt.Errorf("unknown command: %s", argv[1])
 	}
@@ -35,11 +37,12 @@ func PrintHelp() {
 	fmt.Println(`djm - Go-first web project tooling
 
 Usage:
-  djm new <name> [--module <path>]
-  djm add <feature>
-  djm dev
-  djm check
-  djm version
+	djm new <name> [--module <path>]
+	djm add <feature>
+	djm dev
+	djm check
+	djm ux validate
+	djm version
 
 Features:
   core

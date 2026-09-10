@@ -11,6 +11,8 @@ djm new <name> [--module <path>]
 djm add <feature>
 djm dev
 djm check
+djm ux validate
+djm version
 ```
 
 ## Create a project
@@ -128,6 +130,16 @@ go install github.com/danieljmanningdev/djm-cli/cmd/djm@latest
 The reusable implementation stays in focused Go modules such as `go-web-core`, `go-web-security`, and `go-web-auth`. The CLI exists to make those modules and starter applications quicker to use without duplicating them into one monolithic codebase.
 
 The wider stack remains server-rendered and Go-first, with HTML as the default, HTMX for progressive enhancement, and client-side JavaScript added only where browser-side behaviour genuinely requires it.
+
+## Validate UX documentation
+
+Projects using the DJM UX JSON documentation structure can validate
+screens, components, flows, and design tokens against the schemas
+embedded in the CLI.
+
+```bash
+djm ux validate
+```
 
 ## Development
 
