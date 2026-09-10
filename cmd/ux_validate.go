@@ -1,23 +1,29 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/danieljmanningdev/djm-cli/internal/ux"
 )
 
 func UXValidate(args []string) error {
 	root := "docs/ux"
+
+	validator, err := ux.NewValidator()
+	if err != nil {
+		return fmt.Errorf("load UX schemas: %w", err)
+	}
 
 	var screens int
 	var components int
 	var flows int
 	var tokens int
 
-	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+	err = filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -32,18 +38,30 @@ func UXValidate(args []string) error {
 		case strings.HasSuffix(name, ".screen.json"):
 			screens++
 
-			if err := validateScreen(path); err != nil {
+			if err := validateScreen(path, validator); err != nil {
 				return err
 			}
 
 		case strings.HasSuffix(name, ".component.json"):
 			components++
 
+			if err := validateComponent(path, validator); err != nil {
+				return err
+			}
+
 		case strings.HasSuffix(name, ".flow.json"):
 			flows++
 
+			if err := validateFlow(path, validator); err != nil {
+				return err
+			}
+
 		case strings.HasSuffix(name, ".tokens.json"):
 			tokens++
+
+			if err := validateTokens(path, validator); err != nil {
+				return err
+			}
 		}
 
 		return nil
@@ -63,14 +81,59 @@ func UXValidate(args []string) error {
 	return nil
 }
 
-func validateScreen(path string) error {
+func validateScreen(path string, validator *ux.Validator) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("read %s: %w", path, err)
 	}
 
-	if !json.Valid(data) {
-		return fmt.Errorf("%s contains invalid JSON", path)
+	if err := validator.ValidateScreen(data); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+
+	fmt.Printf("✓ %s\n", path)
+
+	return nil
+}
+
+func validateComponent(path string, validator *ux.Validator) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+
+	if err := validator.ValidateComponent(data); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+
+	fmt.Printf("✓ %s\n", path)
+
+	return nil
+}
+
+func validateFlow(path string, validator *ux.Validator) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+
+	if err := validator.ValidateFlow(data); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+
+	fmt.Printf("✓ %s\n", path)
+
+	return nil
+}
+
+func validateTokens(path string, validator *ux.Validator) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+
+	if err := validator.ValidateTokens(data); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
 	}
 
 	fmt.Printf("✓ %s\n", path)
