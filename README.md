@@ -11,6 +11,8 @@ djm new <name> [--module <path>]
 djm add <feature>
 djm dev
 djm check
+djm ux validate
+djm version
 ```
 
 ## Create a project
