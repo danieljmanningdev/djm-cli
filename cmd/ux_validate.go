@@ -38,28 +38,28 @@ func UXValidate(args []string) error {
 		case strings.HasSuffix(name, ".screen.json"):
 			screens++
 
-			if err := validateScreen(path, validator); err != nil {
+			if err := validateFile(path, validator.ValidateScreen); err != nil {
 				return err
 			}
 
 		case strings.HasSuffix(name, ".component.json"):
 			components++
 
-			if err := validateComponent(path, validator); err != nil {
+			if err := validateFile(path, validator.ValidateComponent); err != nil {
 				return err
 			}
 
 		case strings.HasSuffix(name, ".flow.json"):
 			flows++
 
-			if err := validateFlow(path, validator); err != nil {
+			if err := validateFile(path, validator.ValidateFlow); err != nil {
 				return err
 			}
 
 		case strings.HasSuffix(name, ".tokens.json"):
 			tokens++
 
-			if err := validateTokens(path, validator); err != nil {
+			if err := validateFile(path, validator.ValidateTokens); err != nil {
 				return err
 			}
 		}
@@ -81,58 +81,16 @@ func UXValidate(args []string) error {
 	return nil
 }
 
-func validateScreen(path string, validator *ux.Validator) error {
+func validateFile(
+	path string,
+	validate func([]byte) error,
+) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("read %s: %w", path, err)
 	}
 
-	if err := validator.ValidateScreen(data); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
-	}
-
-	fmt.Printf("✓ %s\n", path)
-
-	return nil
-}
-
-func validateComponent(path string, validator *ux.Validator) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("read %s: %w", path, err)
-	}
-
-	if err := validator.ValidateComponent(data); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
-	}
-
-	fmt.Printf("✓ %s\n", path)
-
-	return nil
-}
-
-func validateFlow(path string, validator *ux.Validator) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("read %s: %w", path, err)
-	}
-
-	if err := validator.ValidateFlow(data); err != nil {
-		return fmt.Errorf("%s: %w", path, err)
-	}
-
-	fmt.Printf("✓ %s\n", path)
-
-	return nil
-}
-
-func validateTokens(path string, validator *ux.Validator) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("read %s: %w", path, err)
-	}
-
-	if err := validator.ValidateTokens(data); err != nil {
+	if err := validate(data); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
 
